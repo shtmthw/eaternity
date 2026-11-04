@@ -1,0 +1,102 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --color-accent: #1f6b4a;
+  --color-accent-soft: #e6f0ea;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-white font-sans text-[15px] leading-6 text-stone-900;
+    font-feature-settings: 'cv11';
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-stone-900;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+
+  .btn {
+    @apply inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium whitespace-nowrap transition-colors select-none disabled:pointer-events-none disabled:opacity-40;
+  }
+  .btn-primary {
+    @apply bg-stone-900 text-white hover:bg-stone-700;
+  }
+  .btn-secondary {
+    @apply border border-stone-200 bg-white text-stone-900 hover:border-stone-300 hover:bg-stone-50;
+  }
+  .btn-ghost {
+    @apply text-stone-600 hover:bg-stone-100 hover:text-stone-900;
+  }
+  .btn-sm {
+    @apply h-8 px-3.5 text-[13px];
+  }
+  .btn-icon {
+    @apply size-9 px-0;
+  }
+
+  .input {
+    @apply block w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2.5 text-[15px] transition-colors placeholder:text-stone-400 hover:border-stone-300 focus:border-stone-900 focus:outline-none aria-invalid:border-red-600;
+  }
+  .label {
+    @apply mb-1.5 block text-[13px] font-medium text-stone-600;
+  }
+  .link {
+    @apply underline decoration-stone-300 underline-offset-4 transition-colors hover:decoration-stone-900;
+  }
+  .muted {
+    @apply text-stone-500;
+  }
+
+  /* Side panel built on <dialog>, which brings focus trapping and Escape for free. */
+  .sheet {
+    @apply fixed inset-y-0 right-0 left-auto m-0 flex h-dvh max-h-none w-full max-w-md flex-col bg-white p-0 text-stone-900 shadow-2xl;
+    transition:
+      translate 0.25s cubic-bezier(0.32, 0.72, 0, 1),
+      display 0.25s allow-discrete,
+      overlay 0.25s allow-discrete;
+  }
+  .sheet:not([open]) {
+    display: none;
+    translate: 100% 0;
+  }
+  @starting-style {
+    .sheet[open] {
+      translate: 100% 0;
+    }
+  }
+  .sheet::backdrop {
+    background: rgb(28 25 23 / 0.2);
+    transition:
+      opacity 0.25s,
+      display 0.25s allow-discrete,
+      overlay 0.25s allow-discrete;
+  }
+  @starting-style {
+    .sheet[open]::backdrop {
+      opacity: 0;
+    }
+  }
+}

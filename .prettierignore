@@ -1,6 +1,5 @@
 dist
-node_modules
 data
+drizzle
 package-lock.json
-packages/ui/src/Logo.tsx
-docs/*.svg
+src/client/routeTree.gen.ts

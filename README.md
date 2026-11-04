@@ -1,125 +1,124 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
-    <img src="docs/logo.svg" alt="Eaternity" height="44">
+    <img src="docs/logo.svg" alt="Eaternity" height="40">
   </picture>
 </p>
 
-Eaternity is a food ordering web app. Customers browse the menu, fill a cart and pay with Stripe. Staff add dishes and confirm orders from a separate admin panel. The API is Express with MongoDB, the two frontends are React, and everything is written in TypeScript.
+Eaternity is a food ordering web app. Customers browse the menu, fill a cart and pay with Stripe, then follow their order until the kitchen confirms it. Staff manage the menu and confirm orders on an admin page in the same app. Everything is TypeScript, and the whole thing runs as one container with a SQLite file for storage.
 
-![Storefront](docs/screenshots/storefront.webp)
+![The menu](docs/screenshots/menu.webp)
 
-## Run it with Docker
+## Run it
 
-All you need is Docker with the Compose plugin.
+You need Docker.
+
+```sh
+docker run -d --name eaternity -p 8080:8080 -v eaternity:/data matthew552/eaternity
+```
+
+Open http://localhost:8080 for the shop and http://localhost:8080/admin for the admin page. The admin email is `admin@eaternity.local`. A password is generated on first start and printed in the logs:
+
+```sh
+docker logs eaternity
+docker exec eaternity cat /data/admin-password
+```
+
+The menu starts out empty. Sign in to the admin page, add a few dishes and they show up in the shop right away.
+
+Without a Stripe key the app runs in demo mode: checkout skips the payment page and the order counts as paid. See [Configuration](#configuration) for real payments and confirmation emails.
+
+The database, uploaded photos and the generated password all live in the `eaternity` volume. `docker rm -f eaternity` removes the container and keeps the data. `docker volume rm eaternity` deletes the data as well.
+
+The image is [matthew552/eaternity](https://hub.docker.com/r/matthew552/eaternity) on Docker Hub, built for `linux/amd64` and `linux/arm64`.
+
+### With Compose
+
+[`docker-compose.yml`](docker-compose.yml) passes every setting through from a `.env` file next to it:
 
 ```sh
 curl -O https://raw.githubusercontent.com/shtmthw/eaternity/main/docker-compose.yml
 docker compose up -d
+docker compose logs app
 ```
 
-Then open:
+## What it looks like
 
-- http://localhost:8080 for the shop
-- http://localhost:8080/admin for the admin panel
+Once something is in the cart, a bar at the bottom of the menu shows the running total. The cart slides in from the side, and checkout asks for an account before payment.
 
-The admin email is `admin@eaternity.local`. A password is generated on first start and printed in the logs. You can read it again at any time:
+<p>
+  <img src="docs/screenshots/cart.webp" alt="Cart panel" width="49%">
+  <img src="docs/screenshots/checkout.webp" alt="Checkout" width="49%">
+</p>
 
-```sh
-docker compose exec app cat /data/admin-password
-```
+After paying, the order page shows each step as it happens. It checks for the kitchen's confirmation on its own.
 
-The menu starts out empty. Sign in to the admin panel, add a few dishes and they appear in the shop straight away.
+![Order status](docs/screenshots/order.webp)
 
-Without a Stripe key the app runs in demo mode. Checkout skips the payment page and the order is marked as paid. See [Configuration](#configuration) for real payments and confirmation emails.
+The admin page lists new orders as they come in, with the week's numbers at the top. Dishes are added and edited in a side panel, and photos are resized in the browser before upload.
 
-`docker compose down` stops everything. Data lives in two named volumes, `app-data` (uploaded images and generated secrets) and `mongo-data` (the database). Run `docker compose down -v` to delete them too.
+<p>
+  <img src="docs/screenshots/admin-orders.webp" alt="Admin orders" width="49%">
+  <img src="docs/screenshots/admin-dish.webp" alt="Editing a dish" width="49%">
+</p>
 
-The image is [matthew552/eaternity](https://hub.docker.com/r/matthew552/eaternity) on Docker Hub. It is built for `linux/amd64` and `linux/arm64`, so it runs natively on Intel, AMD and Apple Silicon machines.
+The shop and the admin page both work on a phone.
 
-### Without Compose
-
-```sh
-docker network create eaternity
-docker run -d --name eaternity-mongo --network eaternity -v eaternity-mongo:/data/db mongo:8
-docker run -d --name eaternity --network eaternity -p 8080:8080 \
-  -e MONGODB_URI=mongodb://eaternity-mongo:27017/eaternity \
-  -v eaternity-data:/data \
-  matthew552/eaternity
-docker logs eaternity
-```
-
-## Configuration
-
-Settings are environment variables and every one of them is optional. With Compose, put them in a `.env` file next to `docker-compose.yml`. [`.env.example`](.env.example) lists them all.
-
-| Variable                 | Default                               | Description                                                                                                                            |
-| ------------------------ | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `PORT`                   | `8080`                                | Port the server listens on. With Compose, the port on your machine.                                                                    |
-| `ADMIN_EMAIL`            | `admin@eaternity.local`               | Email for the admin panel.                                                                                                             |
-| `ADMIN_PASSWORD`         | generated                             | Password for the admin panel. When empty, one is generated on first start and saved to `admin-password` in the data directory.         |
-| `JWT_SECRET`             | generated                             | Signs login tokens. When empty, one is generated and saved in the data directory.                                                      |
-| `JWT_EXPIRES_IN`         | `7d`                                  | How long a sign-in lasts, for example `12h` or `30d`.                                                                                  |
-| `STRIPE_SECRET_KEY`      |                                       | Turns on Stripe Checkout. Without it, payments run in demo mode.                                                                       |
-| `PAYMENT_CURRENCY`       | `usd`                                 | Currency Stripe charges in.                                                                                                            |
-| `PAYMENT_EXCHANGE_RATE`  | `1`                                   | Rate from USD to `PAYMENT_CURRENCY`. Menu prices are always entered in USD.                                                            |
-| `PUBLIC_URL`             | the requested host                    | Address Stripe sends customers back to. Set it when the app is behind a proxy or on its own domain.                                    |
-| `SMTP_HOST`              | `smtp.gmail.com`                      | Mail server for order confirmation emails.                                                                                             |
-| `SMTP_PORT`              | `465`                                 | Mail server port.                                                                                                                      |
-| `SMTP_SECURE`            | `true`                                | Use TLS from the start of the connection. Set to `false` for port 587.                                                                 |
-| `SMTP_USER`, `SMTP_PASS` |                                       | Mail credentials. Emails are sent only when both are set. For Gmail, use an [app password](https://myaccount.google.com/apppasswords). |
-| `MAIL_FROM`              | `SMTP_USER`                           | Sender address.                                                                                                                        |
-| `MONGODB_URI`            | `mongodb://127.0.0.1:27017/eaternity` | Database connection string. The Compose file sets this for you.                                                                        |
-| `DATA_DIR`               | `./data`, or `/data` in Docker        | Where uploaded images and generated secrets are stored.                                                                                |
-
-To charge in a currency other than US dollars, set both currency values. For example, `PAYMENT_CURRENCY=bdt` and `PAYMENT_EXCHANGE_RATE=80` charges in Bangladeshi taka at 80 taka to the dollar.
+![Shop and admin page on a phone](docs/screenshots/phones.webp)
 
 ## How orders work
 
-1. Anyone can add dishes to the cart. Guests keep their cart in the browser, and it is merged into their account when they sign in. An account is needed to check out.
-2. At checkout the server looks up current prices, adds a flat $2 delivery fee, saves the order and opens a Stripe Checkout session.
-3. Stripe sends the customer back to `/verify`. The server asks Stripe whether the session was paid before it marks the order as paid and clears the cart. If the customer cancels, the unpaid order is deleted and the cart is left as it was.
-4. Paid orders show up in the admin panel under "Awaiting confirmation". Confirming one updates the status the customer sees and, if email is set up, sends them a confirmation.
+1. The cart lives in the browser, so guests can fill it without an account. Checkout needs one.
+2. The browser sends only dish ids and quantities. The server looks up current prices, adds the delivery fee and saves the order.
+3. With Stripe set up, the customer pays on Stripe Checkout. When Stripe sends them back, the server asks Stripe whether the session was paid before it marks the order as paid. If they cancel instead, the order is marked as cancelled and the cart is left as it was.
+4. Paid orders wait under "To confirm" on the admin page. Confirming one updates the customer's order page and, if email is set up, sends them a confirmation.
 
-<p>
-  <img src="docs/screenshots/checkout.webp" alt="Checkout" width="49%">
-  <img src="docs/screenshots/admin.webp" alt="Admin panel" width="49%">
-</p>
+## Configuration
+
+Settings are environment variables, and all of them are optional. With Compose, put them in a `.env` file next to `docker-compose.yml`. [`.env.example`](.env.example) lists them with comments.
+
+| Variable                 | Default                     | Description                                                                                                                            |
+| ------------------------ | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                   | `8080`                      | Port the server listens on. With Compose, the port on your machine.                                                                    |
+| `PUBLIC_URL`             | the requested address       | Address Stripe sends customers back to. Set it when the app has its own domain.                                                        |
+| `TRUST_PROXY`            | `false`                     | Trust `X-Forwarded-For`, `-Proto` and `-Host`. Turn it on behind a reverse proxy.                                                      |
+| `ADMIN_EMAIL`            | `admin@eaternity.local`     | Email of the admin account. The account is created on start.                                                                           |
+| `ADMIN_PASSWORD`         | generated                   | Password of the admin account. When empty, one is generated on first start and saved as `admin-password` in the data folder.           |
+| `CURRENCY`               | `usd`                       | Three-letter currency code. Prices are entered, shown and charged in it.                                                               |
+| `DELIVERY_FEE`           | `2`                         | Flat delivery fee added to every order.                                                                                                |
+| `STRIPE_SECRET_KEY`      |                             | Turns on Stripe Checkout. Without it, payments run in demo mode.                                                                       |
+| `SMTP_HOST`              | `smtp.gmail.com`            | Mail server for order confirmation emails.                                                                                             |
+| `SMTP_PORT`              | `465`                       | Mail server port.                                                                                                                      |
+| `SMTP_SECURE`            | `true`                      | Use TLS from the start of the connection. Set to `false` for port 587.                                                                 |
+| `SMTP_USER`, `SMTP_PASS` |                             | Mail credentials. Emails are sent only when both are set. For Gmail, use an [app password](https://myaccount.google.com/apppasswords). |
+| `MAIL_FROM`              | `SMTP_USER`                 | Sender address.                                                                                                                        |
+| `DATA_DIR`               | `./data`, `/data` in Docker | Where the database, uploaded photos and the generated password are kept.                                                               |
+
+Changes to `ADMIN_EMAIL` and `ADMIN_PASSWORD` take effect on the next start. If you change the email, the previous admin account becomes a normal customer account.
 
 ## Development
 
-You need Node.js 22.22 or newer and a MongoDB server. The quickest way to get MongoDB is Docker:
-
-```sh
-docker run -d --name eaternity-dev-mongo -p 27017:27017 mongo:8
-```
-
-Then install and start everything:
+You need Node.js 24 or newer. There is no database to install, because SQLite comes with Node.
 
 ```sh
 npm install
 npm run dev
 ```
 
-This runs three processes:
+Open http://localhost:5173. The API runs on port 8080 and Vite forwards `/api` and `/images` to it. Data goes to `./data`, and the admin password is printed on first start. To use your own settings, copy `.env.example` to `.env`.
 
-| Process     | Address                      |
-| ----------- | ---------------------------- |
-| API         | http://localhost:8080        |
-| Shop        | http://localhost:5173        |
-| Admin panel | http://localhost:5174/admin/ |
+| Command               | What it does                                                       |
+| --------------------- | ------------------------------------------------------------------ |
+| `npm run dev`         | Starts the API with `node --watch` and the Vite dev server.        |
+| `npm run build`       | Builds the client into `dist`.                                     |
+| `npm start`           | Runs the server, which also serves the built client on `PORT`.     |
+| `npm test`            | Runs the tests with Node's test runner.                            |
+| `npm run typecheck`   | Type-checks the server, the client and the shared code together.   |
+| `npm run lint`        | Runs ESLint.                                                       |
+| `npm run format`      | Formats the code with Prettier.                                    |
+| `npm run db:generate` | Writes a new migration to `drizzle/` after a change to the schema. |
 
-Both Vite servers forward `/api` and `/images` to the API. The admin password is printed when the API first starts and is saved in `apps/server/data/admin-password`. To use your own settings, copy `.env.example` to `.env` in the repository root.
-
-Other scripts:
-
-| Command             | What it does                                                         |
-| ------------------- | -------------------------------------------------------------------- |
-| `npm run build`     | Builds the API and both frontends.                                   |
-| `npm start`         | Runs the built API, which also serves the built frontends on `PORT`. |
-| `npm run typecheck` | Type-checks every package.                                           |
-| `npm run lint`      | Runs ESLint.                                                         |
-| `npm run format`    | Formats the code with Prettier.                                      |
+Migrations in `drizzle/` run on start.
 
 To build the image yourself:
 
@@ -130,47 +129,40 @@ docker build -t matthew552/eaternity .
 To publish both architectures:
 
 ```sh
-docker buildx build --platform linux/amd64,linux/arm64 \
-  -t matthew552/eaternity:latest --push .
+docker buildx build --platform linux/amd64,linux/arm64 -t matthew552/eaternity:latest --push .
 ```
 
-### Project layout
+### How it is built
+
+The server is [Hono](https://hono.dev) with [tRPC](https://trpc.io), and [Drizzle](https://orm.drizzle.team) talks to SQLite through Node's built-in `node:sqlite`. Node runs the server's TypeScript files as they are, so the server has no build step. The client is React with [TanStack Router](https://tanstack.com/router) and [TanStack Query](https://tanstack.com/query), styled with [Tailwind CSS](https://tailwindcss.com). The client gets its types straight from the server's tRPC router, and both sides validate input with the same [Zod](https://zod.dev) schemas.
+
+Sign-in uses an HTTP-only session cookie. Sessions are stored as SHA-256 hashes and passwords with scrypt. The admin is a normal account with the admin role.
 
 ```
-apps/
-  server/    Express API with Mongoose. In production it also serves both frontends.
-  web/       Customer shop (React and Vite).
-  admin/     Admin panel (React and Vite), served under /admin.
-packages/
-  shared/    Types, validation schemas and price calculation shared by all three apps.
-  ui/        Logo, design tokens and a few React components shared by the two frontends.
-docs/        Logo files and screenshots.
+src/
+  server/
+    routers/    tRPC procedures: shop, auth, orders and admin
+    services/   Sessions, Stripe, email, image uploads, rate limiting
+    db/         Drizzle schema and connection
+    app.ts      Hono app: security headers, tRPC, uploads, static files
+  client/
+    routes/     One file per page. The route tree is generated from them.
+    components/ Shared UI pieces
+    lib/        Cart store, hooks, formatting, forms
+  shared/       Constants, money handling and Zod schemas used on both sides
+drizzle/        SQL migrations
+docs/           Logo and screenshots
 ```
 
-## API
+### HTTP endpoints
 
-Responses look like `{ "success": true, "data": ... }` on success and `{ "success": false, "message": "..." }` on failure. Signed-in requests send `Authorization: Bearer <token>`. Customer and admin tokens are separate.
+Most of the API is tRPC under `/api/trpc`, typed end to end. The procedures are in [`src/server/routers`](src/server/routers). A few plain endpoints sit next to it:
 
-| Method   | Path                      | Access   | Notes                                                                       |
-| -------- | ------------------------- | -------- | --------------------------------------------------------------------------- |
-| `GET`    | `/api/health`             | public   | Returns 503 while the database is unreachable.                              |
-| `GET`    | `/api/config`             | public   | Payment mode and delivery fee.                                              |
-| `POST`   | `/api/users/register`     | public   | `{ name, email, password }`, returns a token.                               |
-| `POST`   | `/api/users/login`        | public   | `{ email, password }`, returns a token.                                     |
-| `GET`    | `/api/users/me`           | customer |                                                                             |
-| `GET`    | `/api/foods`              | public   | The menu.                                                                   |
-| `POST`   | `/api/foods`              | admin    | Multipart form with `name`, `description`, `price`, `category` and `image`. |
-| `DELETE` | `/api/foods/:id`          | admin    | Also deletes the image and removes the dish from carts.                     |
-| `GET`    | `/api/cart`               | customer |                                                                             |
-| `POST`   | `/api/cart/items`         | customer | `{ foodId }`, adds one.                                                     |
-| `DELETE` | `/api/cart/items/:foodId` | customer | Removes one.                                                                |
-| `POST`   | `/api/cart/merge`         | customer | `{ cart }`, adds a guest cart to the account.                               |
-| `POST`   | `/api/orders`             | customer | `{ items: [{ foodId, quantity }], address }`, returns the checkout URL.     |
-| `POST`   | `/api/orders/:id/verify`  | customer | `{ success }`, called when the customer returns from checkout.              |
-| `GET`    | `/api/orders/mine`        | customer |                                                                             |
-| `GET`    | `/api/orders`             | admin    |                                                                             |
-| `POST`   | `/api/orders/:id/confirm` | admin    | Only paid orders can be confirmed.                                          |
-| `POST`   | `/api/admin/login`        | public   | `{ email, password }`, returns an admin token.                              |
+| Method | Path            | Notes                                                               |
+| ------ | --------------- | ------------------------------------------------------------------- |
+| `GET`  | `/api/health`   | Returns `{ "status": "ok" }` once the database answers.             |
+| `POST` | `/api/images`   | Admin only. Multipart form with an `image` field, returns its name. |
+| `GET`  | `/images/:name` | Uploaded dish photos.                                               |
 
 ## Contact
 

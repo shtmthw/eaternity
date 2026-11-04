@@ -9,5 +9,4 @@ data/
 .vscode/*
 !.vscode/extensions.json
 .idea/
-coverage/
 *.tsbuildinfo

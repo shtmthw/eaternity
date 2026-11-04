@@ -6,7 +6,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  globalIgnores(['**/dist', '**/node_modules', 'data']),
+  globalIgnores(['dist', 'data', 'drizzle', 'src/client/routeTree.gen.ts']),
   js.configs.recommended,
   tseslint.configs.recommended,
   {
@@ -16,22 +16,18 @@ export default defineConfig(
     },
   },
   {
-    files: ['apps/server/**/*.ts', '**/vite.config.ts', '**/tsup.config.ts'],
+    files: ['src/server/**/*.ts', '*.config.ts', '*.config.js'],
     languageOptions: { globals: globals.node },
   },
   {
-    files: ['apps/web/src/**/*.{ts,tsx}', 'apps/admin/src/**/*.{ts,tsx}', 'packages/ui/src/**/*.{ts,tsx}'],
+    files: ['src/client/**/*.{ts,tsx}'],
     languageOptions: { globals: globals.browser },
     extends: [reactHooks.configs.flat.recommended, reactRefresh.configs.vite],
-    rules: {
-      // Context modules export their hook next to the provider.
-      'react-refresh/only-export-components': [
-        'error',
-        {
-          allowConstantExport: true,
-          allowExportNames: ['useStore', 'useAdminAuth', 'useAdminData', 'useToast', 'isPending'],
-        },
-      ],
-    },
+  },
+  {
+    // Route files export a Route object next to private components. The router
+    // plugin splits them apart and handles hot reloading itself.
+    files: ['src/client/routes/**/*.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
   },
 );

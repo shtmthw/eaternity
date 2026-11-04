@@ -1,5 +1,5 @@
 **/node_modules
-**/dist
+dist
 data
 .git
 .env
@@ -7,3 +7,4 @@ data
 docs
 *.md
 docker-compose.yml
+**/*.test.ts

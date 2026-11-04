@@ -7,14 +7,13 @@ services:
     ports:
       - '${PORT:-8080}:8080'
     environment:
-      MONGODB_URI: mongodb://mongo:27017/eaternity
       PUBLIC_URL: ${PUBLIC_URL:-}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@eaternity.local}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-      JWT_SECRET: ${JWT_SECRET:-}
+      CURRENCY: ${CURRENCY:-usd}
+      DELIVERY_FEE: ${DELIVERY_FEE:-2}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      PAYMENT_CURRENCY: ${PAYMENT_CURRENCY:-usd}
-      PAYMENT_EXCHANGE_RATE: ${PAYMENT_EXCHANGE_RATE:-1}
       SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
       SMTP_PORT: ${SMTP_PORT:-465}
       SMTP_SECURE: ${SMTP_SECURE:-true}
@@ -22,23 +21,7 @@ services:
       SMTP_PASS: ${SMTP_PASS:-}
       MAIL_FROM: ${MAIL_FROM:-}
     volumes:
-      - app-data:/data
-    depends_on:
-      mongo:
-        condition: service_healthy
-
-  mongo:
-    image: mongo:8
-    restart: unless-stopped
-    volumes:
-      - mongo-data:/data/db
-    healthcheck:
-      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-      start_period: 10s
+      - data:/data
 
 volumes:
-  app-data:
-  mongo-data:
+  data:
