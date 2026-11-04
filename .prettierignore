@@ -1,0 +1,6 @@
+dist
+node_modules
+data
+package-lock.json
+packages/ui/src/Logo.tsx
+docs/*.svg
