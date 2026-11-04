@@ -1,9 +1,4 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
-    <img src="docs/logo.svg" alt="Eaternity" height="40">
-  </picture>
-</p>
+## Eaternity.
 
 Eaternity is a food ordering web app. Customers browse the menu, fill a cart and pay with Stripe, then follow their order until the kitchen confirms it. Staff manage the menu and confirm orders on an admin page in the same app. Everything is TypeScript, and the whole thing runs as one container with a SQLite file for storage.
 
