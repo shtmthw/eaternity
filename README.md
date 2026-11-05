@@ -39,6 +39,10 @@ docker compose logs app
 
 ## What it looks like
 
+The menu is grouped by category, and each dish has a photo, a short description and a price. The search box filters by name and description as you type.
+
+![Vegetarian dishes on the menu](docs/screenshots/menu-veggies.webp)
+
 Once something is in the cart, a bar at the bottom of the menu shows the running total. The cart slides in from the side, and checkout asks for an account before payment.
 
 <p>
@@ -162,3 +166,21 @@ Most of the API is tRPC under `/api/trpc`, typed end to end. The procedures are 
 ## Contact
 
 Questions and suggestions are welcome at mathiwasbaroi@gmail.com.
+
+## Photo credits
+
+The dishes in the screenshots use photos from [Wikimedia Commons](https://commons.wikimedia.org). They were cropped to 4:3 and resized for the demo menu. Dish names and descriptions are made up for the demo and are not part of the original photos.
+
+| Dish                  | Photo                                                                                                                                                                                                                                                                                                         | Author       | License                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------- |
+| T-bone steak          | [Steak served with sauce, greens and garnishes on a dark plate](https://commons.wikimedia.org/wiki/File:Steak_served_with_sauce_greens_and_garnishes_on_a_dark_plate.jpg)                                                                                                                                     | Shixart1985  | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)       |
+| Herb roast chicken    | [Max's Roasted Chicken](https://commons.wikimedia.org/wiki/File:Max%27s_Roasted_Chicken_-_Evan_Swigart.jpg)                                                                                                                                                                                                   | Evan Swigart | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)       |
+| Smashed cheeseburger  | [Cheeseburger and fries](https://commons.wikimedia.org/wiki/File:Cheeseburger_and_fries.jpg)                                                                                                                                                                                                                  | jeffreyw     | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)       |
+| Street tacos          | [Tacos de carnitas, carne asada y al pastor](https://commons.wikimedia.org/wiki/File:001_Tacos_de_carnitas,_carne_asada_y_al_pastor.jpg)                                                                                                                                                                      | Larry Miller | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/) |
+| Pizza margherita      | [Pizza Margherita](https://commons.wikimedia.org/wiki/File:Pizza_Margherita_%28%29.JPG)                                                                                                                                                                                                                       | Lombroso     | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| Spaghetti al pomodoro | [Spaghetti with a minimalist heirloom tomato and basil sauce](https://commons.wikimedia.org/wiki/File:Spaghetti_with_a_minimalist_heirloom_tomato_and_basil_sauce.jpg)                                                                                                                                        | naotakem     | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)       |
+| Caesar salad          | [Caesar Salad from Tony Roma Restaurant](https://commons.wikimedia.org/wiki/File:Caesar_Salad_from_Tony_Roma_Restaurant-_March_2024_02.jpg)                                                                                                                                                                   | Banej        | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| Falafel plate         | [Falafel Plate, Restaurant The Hummusapiens, Berlin](https://commons.wikimedia.org/wiki/File:20240815_Falafel_Plate_Restaurant_The_Hummusapiens_Berlin_anagoria.jpg)                                                                                                                                          | Anagoria     | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| Blackened salmon      | [Blackened Cajun Salmon at the Applebee's in Fair Lakes](https://commons.wikimedia.org/wiki/File:2022-01-29_20_53_20_Blackened_Cajun_Salmon_%286_oz._blackened_and_grilled_salmon_fillet_with_garlic_mashed_potatoes_and_steamed_broccoli%29_at_the_Applebee%27s_in_Fair_Lakes,_Fairfax_County,_Virginia.jpg) | Famartin     | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| Mushroom shoyu ramen  | [Ramen Bowl](https://commons.wikimedia.org/wiki/File:Ramen_Bowl.jpg)                                                                                                                                                                                                                                          | Shisma       | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)       |
+| Lox bagel             | [Lox on Bagel, Atlanta GA](https://commons.wikimedia.org/wiki/File:Lox_on_Bagel,_Atlanta_GA.jpg)                                                                                                                                                                                                              | Pug50        | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)       |
