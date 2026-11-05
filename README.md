@@ -125,12 +125,6 @@ To build the image yourself:
 docker build -t matthew552/eaternity .
 ```
 
-To publish both architectures:
-
-```sh
-docker buildx build --platform linux/amd64,linux/arm64 -t matthew552/eaternity:latest --push .
-```
-
 ### How it is built
 
 The server is [Hono](https://hono.dev) with [tRPC](https://trpc.io), and [Drizzle](https://orm.drizzle.team) talks to SQLite through Node's built-in `node:sqlite`. Node runs the server's TypeScript files as they are, so the server has no build step. The client is React with [TanStack Router](https://tanstack.com/router) and [TanStack Query](https://tanstack.com/query), styled with [Tailwind CSS](https://tailwindcss.com). The client gets its types straight from the server's tRPC router, and both sides validate input with the same [Zod](https://zod.dev) schemas.
